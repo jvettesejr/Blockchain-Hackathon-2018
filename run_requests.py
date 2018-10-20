@@ -50,12 +50,14 @@ def identify_newest_file() -> str:
 
     index = 1
     existing = ""
+    print("\nDiscovered commits:")
     while(True):
         real_name = "hackathon-lbry-threecommaclub" + str(index)
         result = post_information(method="file_list", params={"claim_name":real_name})
         if result["result"]:
             existing = real_name
             index += 1
+            print(existing)
         else:
             break
 
