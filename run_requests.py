@@ -1,6 +1,6 @@
 import os
 import requests
-from typing import Dict
+from typing import Dict, Tuple
 
 
 initial_wallet_address = "bUUH24gcxF2rWwcunaWFfwoTR5dDFfYjnt"
@@ -20,6 +20,9 @@ def post_file(repository, file_name):
     current_dir_path = os.path.dirname(os.path.realpath(__file__))
     real_path = os.path.join(current_dir_path, file_name)
 
+    repository, increment = split_str_int(identify_newest_file())
+    increment += 1
+
     metadata = {
         "description": "Testing out a file upload",
         "title": "Zipped file upload",
@@ -29,25 +32,67 @@ def post_file(repository, file_name):
         "nsfw": False
     }
     params = {
-        "name": repository,
+        "name": repository + str(increment),
         "file_path": real_path,
-        "bid": 1.0,
+        "bid": '0.001',
         "metadata": metadata,
     }
 
     json = post_information(method="publish", params=params)
 
-    print("\nUploaded the file with a post, a bid of 1 LBC")
+    print("\nUploaded the file with a post, a bid of 0.001 LBC")
     print(json)
-    
+    print()
+
+
+def identify_newest_file() -> str:
+    json = post_information(method="claim_list_mine")
+    results = json["result"]
+
+    highest_index = 0
+    highest_value = 0
+    for i in range(len(results)):
+        result, index_int = split_str_int(results[i]["name"])
+        if index_int > highest_value:
+            highest_value = index_int
+            highest_index = i
+
+    interesting = results[highest_index]["permanent_url"]
+    return interesting[:interesting.find("#")]
+
+def split_str_int(string) -> Tuple[str, int]:
+    # print("STRING IS", string)
+    end_index = -1
+    for i in range(len(string)):
+        if string[i].isdigit() == True:
+            end_index = i
+            break
+    if end_index == -1:
+        return string, 0
+    repo_name = string[:end_index]
+    repo_index = int(string[end_index:])
+    # print("PRINTING REPO INFO")
+    # print(repo_name, repo_index)
+    return repo_name, repo_index
 
 def get_files(repository):
+    repository = identify_newest_file()
     # CLI: get(uri=repository)
+    print("Retrieving file from repository:", repository)
     json = post_information(method="get", params={"uri": repository})
-    print("\nRetrived the files and they will be downloaded at:")
+    if not json.get('result'):
+        print("\nThe network has not yet processed all the blobs for the newest version of this file.")
+        print("Please try again soon.\n")
+        return
+    print("\nRetrived the files and they will be downloaded at:\n")
     print(json["result"]['download_path'])
     print("\nThe following data was returned:")
     print(json)
+    print()
+
+def delete_files(repository):
+    json = post_information(method="get", params={"uri": repository})
+
 
 def generate_wallet_address():
     """
@@ -90,6 +135,7 @@ def post_information(method: str, params: Dict = dict()) -> Dict:
 if __name__ == "__main__":
     # test_post()
     get_wallet_balance()
+    # print(identify_newest_file())
     # get_files("hackathon-lbry-threecommaclub")
 
     # post_file(repository = "hackathon-lbry-threecommaclub", file_name = "README.zip")

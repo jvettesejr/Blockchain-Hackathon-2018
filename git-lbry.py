@@ -1,7 +1,12 @@
 import sys
 import os
+from os import listdir
+from os.path import isfile, join
+import zipfile
 import datetime
 from shutil import copyfile
+from typing import Any
+import run_requests
 
 
 ARG_LIST = {
@@ -49,6 +54,10 @@ def get_status(current_dir_path):
 ## Adds file to the current working add
 def add_to_add(filename):
     directory = '.lbry'
+    if not os.path.exists(directory):
+        print("You didn't init your git folder. Please run git init before adding files.")
+        return None
+    directory = '.lbry'
     if os.path.exists(directory):
         current_dir_path = os.path.dirname(os.path.realpath(__file__))
         if os.path.isfile(f'{current_dir_path}/{directory}/{filename}'):
@@ -90,13 +99,38 @@ def show_help():
     for key, value in HELP_LIST.items():
         print('{}\t{}'.format(key, value))
 
+def zip_folder(folder_name=".commit") -> Any:
+    current_dir_path = os.path.dirname(os.path.realpath(__file__))
+    path = os.path.join(current_dir_path, folder_name)
 
-def push_content():
-    pass
+    zipf = zipfile.ZipFile('commit.zip', 'w', zipfile.ZIP_DEFLATED)
+    all_files = [f for f in listdir(path) if isfile(join(path, f))]
+    for file in all_files:
+        zipf.write(file)
+    zipf.close()
+    # return join(path, 'commit.zip')
+    return 'commit.zip'
+    
+def push_content(content_url="hackathon-lbry-threecommaclub"):
+    file_name = zip_folder()
+    run_requests.post_file(
+        repository="hackathon-lbry-threecommaclub",
+        file_name=file_name
+    )
 
+def unzip_folder(folder_name="commit.zip") -> Any:
+    current_dir_path = os.path.dirname(os.path.realpath(__file__))
+    path = os.path.join(current_dir_path, folder_name)
 
-def pull_content(content_url):
-    pass
+    zipf = zipfile.ZipFile(path, 'r')
+    zipf.extractall(current_dir_path)
+    zipf.close()
+
+def pull_content(content_url="hackathon-lbry-threecommaclub"):
+    run_requests.get_files(
+        repository="hackathon-lbry-threecommaclub"
+    )
+    unzip_folder('commit.zip')
 
 
 def commit_content():
