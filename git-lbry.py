@@ -1,6 +1,7 @@
 import sys
 import os
 import datetime
+from shutil import copyfile
 
 
 ARG_LIST = {
@@ -99,7 +100,15 @@ def pull_content(content_url):
 
 
 def commit_content():
-    pass
+    directory = '.commit'
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
+    # Iterate to find added files
+    with open('{}/.add'.format('.lbry'), 'r') as record_file:
+        for line in record_file.readlines():
+            copyfile(line.strip(), f"{directory}/{line.strip()}")
+
 
 
 def main():
@@ -140,7 +149,7 @@ def main():
     elif command == 'push':
         push_content()
 
-    elif command == 'pull:
+    elif command == 'pull':
         content_url = arguments[1:]
         pull_content(content_url)
 
@@ -150,4 +159,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-    
