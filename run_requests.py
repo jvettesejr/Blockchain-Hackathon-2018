@@ -34,7 +34,7 @@ def post_file(repository, file_name):
     params = {
         "name": repository + str(increment),
         "file_path": real_path,
-        "bid": '0.001',
+        "bid": '0.011',
         "metadata": metadata,
     }
 
@@ -75,20 +75,25 @@ def split_str_int(string) -> Tuple[str, int]:
     # print(repo_name, repo_index)
     return repo_name, repo_index
 
-def get_files(repository):
+def get_files(repository) -> Dict:
     repository = identify_newest_file()
     # CLI: get(uri=repository)
+    print()
+    print("*"*88)
     print("Retrieving file from repository:", repository)
     json = post_information(method="get", params={"uri": repository})
-    if not json.get('result'):
-        print("\nThe network has not yet processed all the blobs for the newest version of this file.")
+    if not json.get('result') or json.get('error'):
+        print("*"*88)
+        print("The network has not yet processed all the blobs for the newest version of this file.")
         print("Please try again soon.\n")
-        return
-    print("\nRetrived the files and they will be downloaded at:\n")
+        return json
+    print("Retrived the files and they will be downloaded at:")
     print(json["result"]['download_path'])
+    print("*"*88)
     print("\nThe following data was returned:")
     print(json)
     print()
+    return json
 
 def delete_files(repository):
     json = post_information(method="get", params={"uri": repository})

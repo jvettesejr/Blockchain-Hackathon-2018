@@ -118,19 +118,36 @@ def push_content(content_url="hackathon-lbry-threecommaclub"):
         file_name=file_name
     )
 
-def unzip_folder(folder_name="commit.zip") -> Any:
+def unzip_folder(folder_name="commit.zip") -> bool:
     current_dir_path = os.path.dirname(os.path.realpath(__file__))
     path = os.path.join(current_dir_path, folder_name)
 
+    if not os.path.isfile(f'{current_dir_path}/{folder_name}'):
+        return False
+
     zipf = zipfile.ZipFile(path, 'r')
+    all_files = zipf.infolist()
+    print("*"*88)
+    print(f"Updating the following files into the {current_dir_path} directory")
+    for file in all_files:
+        print(file.filename)
+    print("*"*88)
     zipf.extractall(current_dir_path)
     zipf.close()
+    return True
 
 def pull_content(content_url="hackathon-lbry-threecommaclub"):
-    run_requests.get_files(
+    results = run_requests.get_files(
         repository="hackathon-lbry-threecommaclub"
     )
-    unzip_folder('commit.zip')
+    if results.get("error"):
+        print("ERROR occurred. File was not able to be retrieved.")
+        return
+    unzipping = unzip_folder('commit.zip')
+    if not unzipping:
+        print("Unsuccessful unzip.\n")
+    else:
+        print("Successfully unzipped the zip file. Directories have been updated.\n")
 
 
 def commit_content():
@@ -140,7 +157,9 @@ def commit_content():
 
     # Iterate to find added files
     with open('{}/.add'.format('.lbry'), 'r') as record_file:
+        print("Committing the files:")
         for line in record_file.readlines():
+            print(line.strip())
             copyfile(line.strip(), f"{directory}/{line.strip()}")
 
 
