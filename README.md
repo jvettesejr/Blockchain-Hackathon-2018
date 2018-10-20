@@ -10,7 +10,7 @@ Git_LBRY is a version control system that utilizes the LBRY platform.
 
 ## Installation
 Please visit LBRY link to configure your access to the platform
-[https://github.com/lbryio/lbry/blob/master/INSTALL.md]
+https://github.com/lbryio/lbry/blob/master/INSTALL.md
 
 ### Requirements
 * MacOS, Linux, Windows
