@@ -34,7 +34,7 @@ def post_file(repository, file_name):
     params = {
         "name": repository + str(increment),
         "file_path": real_path,
-        "bid": '0.011',
+        "bid": '0.001',
         "metadata": metadata,
     }
 
@@ -46,9 +46,25 @@ def post_file(repository, file_name):
 
 
 def identify_newest_file() -> str:
-    json = post_information(method="claim_list_mine")
-    results = json["result"]
+    # json = post_information(method="claim_list_mine")
 
+    index = 1
+    existing = ""
+    while(True):
+        real_name = "hackathon-lbry-threecommaclub" + str(index)
+        result = post_information(method="file_list", params={"claim_name":real_name})
+        if result["result"]:
+            existing = real_name
+            index += 1
+        else:
+            break
+
+    if not existing:
+        return False
+    else:
+        return existing
+
+    """
     highest_index = 0
     highest_value = 0
     for i in range(len(results)):
@@ -59,6 +75,7 @@ def identify_newest_file() -> str:
 
     interesting = results[highest_index]["permanent_url"]
     return interesting[:interesting.find("#")]
+    """
 
 def split_str_int(string) -> Tuple[str, int]:
     # print("STRING IS", string)
