@@ -1,0 +1,12 @@
+#!/Users/francesco/Workspace/Competitions/Blockchain-Hackathon-2018/source/lbry/lbry-venv/bin/python3.7
+# EASY-INSTALL-ENTRY-SCRIPT: 'lbrynet','console_scripts','lbrynet'
+__requires__ = 'lbrynet'
+import re
+import sys
+from pkg_resources import load_entry_point
+
+if __name__ == '__main__':
+    sys.argv[0] = re.sub(r'(-script\.pyw?|\.exe)?$', '', sys.argv[0])
+    sys.exit(
+        load_entry_point('lbrynet', 'console_scripts', 'lbrynet')()
+    )
