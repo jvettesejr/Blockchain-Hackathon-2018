@@ -4,7 +4,7 @@ import datetime
 
 
 ARG_LIST = {
-    'commit': 'file',
+    'commit': 'singular',
     'add': 'file',
     'status': 'singular',
     'pull': 'url',
@@ -98,6 +98,10 @@ def pull_content(content_url):
     pass
 
 
+def commit_content():
+    pass
+
+
 def main():
     if len(sys.argv) <= 1:
         show_help()
@@ -139,6 +143,9 @@ def main():
     elif command == 'pull:
         content_url = arguments[1:]
         pull_content(content_url)
+
+    elif command == 'commit':
+        commit_content()
 
 
 if __name__ == '__main__':
